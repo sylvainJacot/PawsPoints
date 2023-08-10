@@ -1,31 +1,80 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View} from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
-import { Button } from 'react-native-elements';
+import { Input, Button, Icon } from 'react-native-elements';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+
+const auth = getAuth();
 
 const WelcomeScreen: React.FC<StackScreenProps<any>> = ({ navigation }) => {
+
+    const [value, setValue] = React.useState({
+        email: '',
+        password: '',
+        error: ''
+      })
+
+    async function logIn() {
+        if (value.email === '' || value.password === '') {
+          setValue({
+            ...value,
+            error: 'Email and password are mandatory.'
+          })
+          return;
+        }
+    
+        try {
+          await signInWithEmailAndPassword(auth, value.email, value.password);
+        } catch (error) {
+          setValue({
+            ...value,
+            error: error.message,
+          })
+        }
+      }
+
   return (
     <View style={styles.container}>
       <Text>Welcome screen!</Text>
 
+      <View style={styles.LoginSection}>
+        <Input
+          placeholder='Email'
+          containerStyle={styles.control}
+          value={value.email}
+          onChangeText={(text) => setValue({ ...value, email: text })}
+          leftIcon={<Icon
+            name='envelope'
+            size={16}
+          />}
+        />
+
+        <Input
+          placeholder='Password'
+          containerStyle={styles.control}
+          value={value.password}
+          onChangeText={(text) => setValue({ ...value, password: text })}
+          secureTextEntry={true}
+          leftIcon={<Icon
+            name='key'
+            size={16}
+          />}
+        />
+
+        <Button title="Login" buttonStyle={styles.control} onPress={logIn} />
+      </View>
+
       <View style={styles.buttons}>
-        <Button title="Login" buttonStyle={styles.button} onPress={() => navigation.navigate('Sign In')} />
-        <Button title="Register" type="outline" buttonStyle={styles.button} onPress={() => navigation.navigate('Sign Up')} />
-        <TouchableOpacity style={styles.googleButton}>
-            <Image
-            style={styles.googleIcon}
-            source={{
-                uri: "https://i.ibb.co/j82DCcR/search.png",
-            }}
-            />
-            <Text style={styles.googleButtonText}>Sign in with Google</Text>
-        </TouchableOpacity>
+        <Button title="Create account" type="outline" buttonStyle={styles.button} onPress={() => navigation.navigate('Sign Up')} />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+    LoginSection:{
+        flex: 1,
+    },
   container: {
     flex: 1,
     paddingTop: 20,
@@ -33,32 +82,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
+  control:{
+    marginTop: 10
+  },
   buttons: {
     flex: 1,
   },
-
   button: {
     marginTop: 10
-  },
-  googleButton: {
-    backgroundColor: "white",
-    borderRadius: 4,
-    paddingHorizontal: 34,
-    paddingVertical: 16,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'
-   },
-   googleButtonText: {
-    marginLeft: 16,
-    fontSize: 18,
-    fontWeight: '600'
-   },
-   googleIcon: {
-    height: 24,
-    width: 24
-   }
+  }
 });
 
 export default WelcomeScreen;

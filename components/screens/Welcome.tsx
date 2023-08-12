@@ -4,9 +4,14 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { Input, Button, Icon } from 'react-native-elements';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
+// Types
+import { StackNavigationParamList } from '../navigation/type';
+
 const auth = getAuth();
 
-const WelcomeScreen: React.FC<StackScreenProps<any>> = ({ navigation }) => {
+type WelcomeScreenProps = StackScreenProps<StackNavigationParamList, 'Welcome'>;
+
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 
     const [value, setValue] = React.useState({
         email: '',
@@ -65,7 +70,7 @@ const WelcomeScreen: React.FC<StackScreenProps<any>> = ({ navigation }) => {
       </View>
 
       <View style={styles.buttons}>
-        <Button title="Create account" type="outline" buttonStyle={styles.button} onPress={() => navigation.navigate('Sign Up')} />
+        <Button title="Create account" type="outline" buttonStyle={styles.button} onPress={() => navigation.navigate('SignUp')} />
       </View>
     </View>
   );

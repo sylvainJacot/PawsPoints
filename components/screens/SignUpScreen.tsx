@@ -3,11 +3,16 @@ import { StyleSheet, Text, View, } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Input, Button } from 'react-native-elements';
 import { StackScreenProps } from '@react-navigation/stack';
-import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+
+// Type
+import { StackNavigationParamList } from '../navigation/type';
 
 const authentication = getAuth();
 
-const SignUpScreen: React.FC<StackScreenProps<any>> = ({ navigation }) => {
+type SignUpScreenProps = StackScreenProps<StackNavigationParamList, 'SignUp'>;
+
+const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   const [value, setValue] = React.useState({
     email: '',
     password: '',

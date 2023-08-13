@@ -2,8 +2,8 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 // Screens 
-import WelcomeScreen from '../screens/Welcome';
-import SignOutScreen from '../screens/SignUpScreen';
+import WelcomeScreen from '../screens/welcome-screen';
+import SignOutScreen from '../screens/signUp-screen';
 
 // Types
 import { StackNavigationParamList } from './type';

@@ -3,12 +3,15 @@ import { StyleSheet, Text, View, } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Input, Button } from 'react-native-elements';
 import { StackScreenProps } from '@react-navigation/stack';
+
+// Firebase
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
 // Type
-import { StackNavigationParamList } from '../navigation/type';
+import { StackNavigationParamList } from '../../navigation/type';
+import { getDatabase, ref, set } from 'firebase/database';
 
-const authentication = getAuth();
+const auth = getAuth();
 
 type SignUpScreenProps = StackScreenProps<StackNavigationParamList, 'SignUp'>;
 
@@ -24,19 +27,33 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
     if (value.email === '' || value.password === '') {
       setValue({
         ...value,
-        error: 'Email and password are mandatory.'
-      })
+        error: 'Email and password are mandatory.',
+      });
       return;
     }
   
     try {
-      await createUserWithEmailAndPassword(authentication, value.email, value.password);
-      navigation.navigate('Sign In');
+      const userCredential = await createUserWithEmailAndPassword(auth, value.email, value.password);
+      const user = userCredential.user;
+  
+      // Save user's data in the Realtime Database
+      const database = getDatabase();
+      const userRef = ref(database, `users/${user.uid}`);
+      
+      // Here, you can set the user's email and other information
+      const userData = {
+        email: user.email,
+        // Other fields as needed
+      };
+      
+      await set(userRef, userData);
+  
+      navigation.navigate('Home');
     } catch (error) {
       setValue({
         ...value,
         error: error.message,
-      })
+      });
     }
   }
 

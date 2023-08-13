@@ -2,10 +2,12 @@ import React from 'react';
 import { StyleSheet, Text, View} from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { Input, Button, Icon } from 'react-native-elements';
+
+// Firebase
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 // Types
-import { StackNavigationParamList } from '../navigation/type';
+import { StackNavigationParamList } from '../../navigation/type';
 
 const auth = getAuth();
 

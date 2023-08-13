@@ -10,6 +10,13 @@ import ProfileScreenPro from './variants/pro-mode';
 import { TextInput, View } from 'react-native';
 import { Button, Switch, Text } from 'react-native-elements';
 
+// Firebase
+import { getDatabase, ref, update } from 'firebase/database'; 
+
+// Utils
+import { useAuthentication } from '../../../utils/hooks/useAuthentication';
+
+
 type ProfileScreenNavigationProps = StackScreenProps<StackNavigationParamList, 'Profile'>;
 
 export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
@@ -24,9 +31,27 @@ export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
     const [password, setPassword] = useState<string>('');
   
 
+    const { user } = useAuthentication();
+
     const handleSaveProfile = () => {
-      // Implement logic to update user profile data in the database
+      const userData = {
+        name,
+        firstName,
+        phoneNumber,
+        email,
+        // Any other fields you want to update/add
+      };
+  
+      const database = getDatabase(); // Get the database instance
+      update(ref(database, `users/${user?.uid}`), userData) // Update the user's data
+        .then(() => {
+          console.log('User data updated successfully');
+        })
+        .catch(error => {
+          console.error('Error updating user data:', error);
+        });
     };
+  
   
     const handleSwitchToProMode = () => {
       // Implement logic to update user's mode in the database

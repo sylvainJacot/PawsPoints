@@ -81,6 +81,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
     LoginSection:{
         flex: 1,
+        width: '80%'
     },
   container: {
     flex: 1,

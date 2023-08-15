@@ -1,30 +1,59 @@
-import React from 'react';
+/*
+* Vendors 
+*/
+import React, { useState } from 'react';
 import { StyleSheet, Text, View} from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
-import { Input, Button, Icon } from 'react-native-elements';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { Input, Button } from 'react-native-elements';
+
+// Firebase
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 // Types
-import { StackNavigationParamList } from '../navigation/type';
+import { StackNavigationParamList } from '../../navigation/type';
+import { auth } from '../../../config/firebase';
 
-const auth = getAuth();
+// Utils
+import { isEmailValid, isPasswordValid } from '../../../utils/forms'
+
 
 type WelcomeScreenProps = StackScreenProps<StackNavigationParamList, 'Welcome'>;
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 
-    const [value, setValue] = React.useState({
+    // CONST
+    const [value, setValue] = useState({
         email: '',
         password: '',
         error: ''
       })
 
+    // FUNCTIONS
+
+    /*
+    * LOGIN function
+    */
     async function logIn() {
         if (value.email === '' || value.password === '') {
           setValue({
             ...value,
             error: 'Email and password are mandatory.'
           })
+          return;
+        }
+        if (!isEmailValid(value.email)) {
+          setValue({
+            ...value,
+            error: 'Please enter a valid email address.'
+          });
+          return;
+        }
+      
+        if (!isPasswordValid(value.password)) {
+          setValue({
+            ...value,
+            error: 'Password must be at least 6 characters long.'
+          });
           return;
         }
     
@@ -48,11 +77,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
           containerStyle={styles.control}
           value={value.email}
           onChangeText={(text) => setValue({ ...value, email: text })}
-          leftIcon={<Icon
-            name='envelope'
-            size={16}
-          />}
         />
+          {value.error && !isEmailValid(value.email) && (
+            <Text>{value.error}</Text>
+          )}
 
         <Input
           placeholder='Password'
@@ -60,11 +88,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
           value={value.password}
           onChangeText={(text) => setValue({ ...value, password: text })}
           secureTextEntry={true}
-          leftIcon={<Icon
-            name='key'
-            size={16}
-          />}
         />
+          {value.error && !isPasswordValid(value.password) && (
+            <Text>{value.error}</Text>
+          )}
 
         <Button title="Login" buttonStyle={styles.control} onPress={logIn} />
       </View>
@@ -79,6 +106,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
     LoginSection:{
         flex: 1,
+        width: '80%'
     },
   container: {
     flex: 1,

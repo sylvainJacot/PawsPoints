@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useAuthentication } from '../../utils/hooks/useAuthentication';
 import { Button } from 'react-native-elements';
-import { getAuth, signOut } from 'firebase/auth';
-import UniqueCodeQR from '../qrcode';
+
+// Firebase
+import {getAuth, signOut} from 'firebase/auth';
+
+// Components
+import UniqueCodeQR from '../../qrcode';
 
 // Type
 import { StackScreenProps } from '@react-navigation/stack'; 
-import { StackNavigationParamList } from '../navigation/type';
+import { StackNavigationParamList } from '../../navigation/type';
 
+// Utils
+import { useAuthentication } from '../../../utils/hooks/useAuthentication';
 
 type HomeScreenProps = StackScreenProps<StackNavigationParamList, 'Home'>;
 
 const auth = getAuth();
-
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
 
@@ -55,7 +59,17 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
                 isProMode: true,
                 isClientMode: false, 
               })} />
-      <Button title="Sign Out" style={styles.button} onPress={() => signOut(auth)} />
+      <Button 
+        title="Sign Out" 
+        style={styles.button} 
+        onPress={async () => {
+          try {
+            await signOut(auth);
+          } catch (error) {
+            console.error('Error signing out:', error);
+          }
+        }}
+      />
     </View>
   );
 }

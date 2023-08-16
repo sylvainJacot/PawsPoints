@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
 
@@ -6,20 +6,29 @@ import { Button } from 'react-native-elements';
 import {getAuth, signOut} from 'firebase/auth';
 
 // Components
-import UniqueCodeQR from '../../qrcode';
+import UniqueCodeQR from '../../components/qrcode';
 
 // Type
 import { StackScreenProps } from '@react-navigation/stack'; 
-import { StackNavigationParamList } from '../../navigation/type';
+import { StackNavigationParamList } from '../../components/navigation/type';
 
 // Utils
-import { useAuthentication } from '../../../utils/hooks/useAuthentication';
+import { useAuthentication } from '../../utils/hooks/useAuthentication';
+
+// Store
+import UserContext from '../../context/user-context'
 
 type HomeScreenProps = StackScreenProps<StackNavigationParamList, 'Home'>;
 
 const auth = getAuth();
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
+
+  const { userData } = useContext(UserContext);
+
+  console.group('%c STATE', 'color: white; background-color: #1B83A4; font-size: 15px');
+  console.log('value', userData);
+  console.groupEnd();
 
   const initialItemState ={
     name: 'Sugar',
@@ -43,8 +52,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   return (
     <View style={styles.container}>
       <Text>Welcome {user?.email}!</Text>
-      <Text>Your uuid is {item.name}!</Text>
-      <Text>type of {typeof item.name}!</Text>
+      <Text>Your uuid is {item.name}!</Text> 
+      <Text>type of {userData?.firstName}!</Text>
       <View>
         <UniqueCodeQR 
           uniqueCode={JSON.stringify({

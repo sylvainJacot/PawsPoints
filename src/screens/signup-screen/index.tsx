@@ -8,7 +8,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
 // Type
-import { StackNavigationParamList } from '../../navigation/type';
+import { StackNavigationParamList } from '../../components/navigation/type';
 import { getDatabase, ref, set } from 'firebase/database';
 
 const auth = getAuth();

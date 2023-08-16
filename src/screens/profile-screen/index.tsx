@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 // Types
 import { StackScreenProps } from '@react-navigation/stack'; 
-import { StackNavigationParamList } from '../../navigation/type';
+import { StackNavigationParamList } from '../../components/navigation/type';
 
 // Component
 import ProfileScreenClient from './variants/client-mode';
@@ -14,7 +14,7 @@ import { Button, Switch, Text, Input } from 'react-native-elements';
 import { getDatabase, ref, set } from 'firebase/database'; 
 
 // Utils
-import { useAuthentication } from '../../../utils/hooks/useAuthentication';
+import { useAuthentication } from '../../utils/hooks/useAuthentication';
 
 
 type ProfileScreenNavigationProps = StackScreenProps<StackNavigationParamList, 'Profile'>;

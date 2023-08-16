@@ -10,11 +10,11 @@ import { Input, Button } from 'react-native-elements';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 // Types
-import { StackNavigationParamList } from '../../navigation/type';
+import { StackNavigationParamList } from '../../components/navigation/type';
 import { auth } from '../../../config/firebase';
 
 // Utils
-import { isEmailValid, isPasswordValid } from '../../../utils/forms'
+import { isEmailValid, isPasswordValid } from '../../utils/forms'
 
 
 type WelcomeScreenProps = StackScreenProps<StackNavigationParamList, 'Welcome'>;

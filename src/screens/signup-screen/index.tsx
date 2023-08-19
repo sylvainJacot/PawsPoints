@@ -42,7 +42,9 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
       
       // Here, you can set the user's email and other information
       const userData = {
-        email: user.email,
+        profile: {
+          email: user.email
+        },
         // Other fields as needed
       };
       

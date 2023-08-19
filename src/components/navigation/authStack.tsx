@@ -13,8 +13,8 @@ const Stack = createStackNavigator<StackNavigationParamList>();
 export default function AuthStack() {
   return (
       <Stack.Navigator>
-        <Stack.Screen name={'Welcome'} component={WelcomeScreen} />
-        <Stack.Screen name={'SignUp'} component={SignUpScreen} />
+        <Stack.Screen name={"Welcome"} component={WelcomeScreen} />
+        <Stack.Screen name={"SignUp"} component={SignUpScreen} />
       </Stack.Navigator>
   );
 }

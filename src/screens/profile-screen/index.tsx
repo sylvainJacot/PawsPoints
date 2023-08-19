@@ -11,10 +11,13 @@ import { View } from 'react-native';
 import { Button, Switch, Text, Input } from 'react-native-elements';
 
 // Firebase
-import { getDatabase, ref, set } from 'firebase/database'; 
+import { get, getDatabase, ref, set } from 'firebase/database'; 
 
 // Utils
 import { useAuthentication } from '../../utils/hooks/useAuthentication';
+import { updateUserData } from '../../utils/services/firebase-services';
+import { updateEmail, updatePassword } from 'firebase/auth';
+import { auth } from '../../../config/firebase';
 
 
 type ProfileScreenNavigationProps = StackScreenProps<StackNavigationParamList, 'Profile'>;
@@ -29,22 +32,67 @@ export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
     const [phoneNumber, setPhoneNumber] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-  
 
     const { user } = useAuthentication();
 
-    const handleSaveProfile = ({ name='', firstName='', phoneNumber='', email='' }) => {
-  
-      const database = getDatabase(); // Get the database instance
-
-        set(ref(database, `users/${user?.uid}`), { name, firstName, phoneNumber, email }) // Update the user's data
-          .then(() => {
-            console.log('User data updated successfully');
+    const handleSaveProfile = ({ name = '', firstName = '', phoneNumber = '', email = '' }) => {
+      const userId = user?.uid; // Assuming user is declared somewhere above
+    
+      const database = getDatabase();
+      const userRef = ref(database, `users/${userId}`);
+    
+      if (userRef && userId) {
+        if (auth.currentUser) {
+          const currentUser = auth.currentUser; // Declare currentUser here
+          const currentUserEmail = currentUser.email; // Access email from currentUser
+    
+          if (email !== currentUserEmail) {
+            updateEmail(currentUser, email)
+              .then(() => {
+                // Email updated!
+                // ...
+              })
+              .catch((error) => {
+                // An error occurred
+                // ...
+              });
+          }
+    
+          if (!!password) {
+            updatePassword(currentUser, password)
+              .then(() => {
+                // Password updated!
+                // ...
+              })
+              .catch((error) => {
+                // An error occurred
+                // ...
+              });
+          }
+        }
+    
+        get(userRef)
+          .then((snapshot) => {
+            const userData = snapshot.val() || {}; // Get existing data or an empty object if no data exists
+    
+            // Update the user's data with the new profile data
+            userData.profile = {
+              name,
+              firstName,
+              phoneNumber,
+              email,
+            };
+            return set(userRef, userData);
           })
-          .catch(error => {
-            console.error('Error updating user data:', error);
+          .catch((error) => {
+            console.error('Error updating user profile:', error);
           });
+      }
     };
+    
+          // Set the updated data back to the database
+
+
   
   
     const handleSwitchToProMode = () => {

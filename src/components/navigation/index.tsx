@@ -7,8 +7,6 @@ import AuthStack from './authStack';
 // Store
 import UserProvider from '../../context/user-provider';
 
-import ErrorBoundaries from '../error'
-
 // Hooks
 import { useAuthentication } from '../../utils/hooks/useAuthentication';
 
@@ -17,11 +15,9 @@ export default function RootNavigation() {
   const { user } = useAuthentication();
 
   return user ? 
-  <ErrorBoundaries>
-      <UserProvider>
-          <UserStack /> 
-      </UserProvider>
-  </ErrorBoundaries>
+    <UserProvider>
+        <UserStack /> 
+    </UserProvider>
   : 
   <AuthStack />;
 }

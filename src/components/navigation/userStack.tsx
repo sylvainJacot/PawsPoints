@@ -1,22 +1,17 @@
 import React, { useContext } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-
-// Sceens
+// Sreens
 import HomeScreen from '../../screens/home-screen';
 import ProfileScreen from '../../screens/profile-screen';
 import UserContext from '../../context/user-context';
+import CardCreation from '../../screens/card-creation-screen';
+import { userDataProps } from '../../types/user-data';
 
-const Stack = createStackNavigator();
+function UserStack() {
 
-export default function UserStack() {
-
+  const Stack = createStackNavigator();
   const { userData } = useContext(UserContext);
-
-
-  console.group('%c UserStack', 'color: white; background-color: #1B83A4; font-size: 15px');
-  console.log('userData', userData);
-  console.groupEnd();
 
   return (
     userData ? 
@@ -24,10 +19,13 @@ export default function UserStack() {
         <Stack.Screen 
           name={'Home'} 
           component={HomeScreen} 
-          initialParams={{ userData: userData && userData }}
+          initialParams={{ userData: userData as userDataProps }}
           />
-        <Stack.Screen name={'Profile'} component={ProfileScreen} initialParams={{ userData: userData && userData }}/>
+        <Stack.Screen name={'Profile'} component={ProfileScreen} initialParams={{ userData: userData as userDataProps  }}/>
+        <Stack.Screen name={'CardCreation'} component={CardCreation} initialParams={{ proMode: userData?.proMode }}/>
       </Stack.Navigator>
       : null
   );
 }
+
+export default UserStack;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
 
@@ -9,41 +9,40 @@ import {getAuth, signOut} from 'firebase/auth';
 import UniqueCodeQR from '../../components/qrcode';
 
 // Type
-import { StackScreenProps } from '@react-navigation/stack'; 
-import { StackNavigationParamList } from '../../components/navigation/type';
+import { HomeScreenProps } from '../../types/screens/home-screen';
 
 // Utils
 import { useAuthentication } from '../../utils/hooks/useAuthentication';
 
 
-type HomeScreenProps = StackScreenProps<StackNavigationParamList, 'Home'>;
-
-const auth = getAuth();
-
-export default function HomeScreen({ navigation, route }: HomeScreenProps) {
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }: HomeScreenProps) => {
 
   const { userData } = route.params;
 
-  console.group('%c HomeScreen', 'color: white; background-color: #1B83A4; font-size: 15px');
-  console.log('value', userData);
-  console.groupEnd();
-
-  const initialItemState ={
-    name: 'Sugar',
-  }
-
-  const [item, setItem] = useState<{ name: string}>(initialItemState);
-
+  // States
+  const [item, setItem] = useState<string>('');
   const { user } = useAuthentication();
 
-  useEffect(() => {
+  // Functions
+  /*
+  * SignOUt
+  */
+  async function handleSignOut () {
+    const auth = getAuth();
 
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error('Error signing out:', error);
+      }
+  }
+  useEffect(() => {
     if(user) {
-      setItem({
-        name: user.uid
-      })
+      setItem( user.uid )
     }
-  
+    () => {
+      setItem('');
+    }
   }, [user])
   
 
@@ -51,30 +50,22 @@ export default function HomeScreen({ navigation, route }: HomeScreenProps) {
     <View style={styles.container}>
       <Text>Welcome {user?.email}!</Text>
       <View>
-        <UniqueCodeQR 
-          uniqueCode={JSON.stringify({
-            name: item.name,
-           })}
-        />
+        <UniqueCodeQR  uniqueCode={JSON.stringify({ name: item})}/>
       </View>
       <Button 
       title="Profile"
        style={styles.button} 
-       onPress={() => navigation.navigate('Profile',  {userData: userData })} />
+       onPress={() => navigation.navigate('Profile', { userData: userData })} />
       <Button 
         title="Sign Out" 
         style={styles.button} 
-        onPress={async () => {
-          try {
-            await signOut(auth);
-          } catch (error) {
-            console.error('Error signing out:', error);
-          }
-        }}
+        onPress={() => handleSignOut()}
       />
     </View>
   );
 }
+
+export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 
 // Types
-import { StackScreenProps } from '@react-navigation/stack'; 
-import { StackNavigationParamList } from '../../components/navigation/type';
+import { ProfileScreenNavigationProps } from '../../types/screens/profile-screen';
 
 // Component
 import ProfileScreenClient from './variants/client-mode';
-import ProfileScreenPro from './variants/pro-mode';
 import { View } from 'react-native';
 import { Button, Switch, Text, Input } from 'react-native-elements';
 
@@ -17,25 +15,30 @@ import { get, getDatabase, ref, set } from 'firebase/database';
 import { useAuthentication } from '../../utils/hooks/useAuthentication';
 import { updateEmail, updatePassword } from 'firebase/auth';
 import { auth } from '../../../config/firebase';
+import ProfileScreenPro from './variants/pro-mode';
 
-
-type ProfileScreenNavigationProps = StackScreenProps<StackNavigationParamList, 'Profile'>;
 
 export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
 
     // Props
     const { userData } = route.params;
 
-    // const [isProMode, setIsProMode] = useState<boolean>(false);
-    const [name, setName] = useState<string>('');
-    const [firstName, setFirstName] = useState<string>('');
-    const [phoneNumber, setPhoneNumber] = useState<string>('');
-    const [email, setEmail] = useState<string>('');
+    const initialName = userData?.profile?.name ?? ''; 
+    const initialFirstName = userData?.profile?.firstName ?? '';
+    const initialPhoneNumber = userData?.profile?.phoneNumber ?? '';
+    const initialEmail = userData?.profile?.email ?? '';
+
+    // State
+    const [name, setName] = useState<string>(initialName);
+    const [firstName, setFirstName] = useState<string>(initialFirstName);
+    const [phoneNumber, setPhoneNumber] = useState<string>(initialPhoneNumber);
+    const [email, setEmail] = useState<string>(initialEmail);
     const [password, setPassword] = useState<string>('');
+    
 
     const { user } = useAuthentication();
 
-    const handleSaveProfile = ({ name = '', firstName = '', phoneNumber = '', email = '' }) => {
+    const handleSaveProfile = ({ name = '', firstName = '', phoneNumber = '', email = '', password = '' }) => {
       const userId = user?.uid; // Assuming user is declared somewhere above
     
       const database = getDatabase();
@@ -49,8 +52,7 @@ export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
           if (email !== currentUserEmail) {
             updateEmail(currentUser, email)
               .then(() => {
-                // Email updated!
-                // ...
+                console.log('email updated')
               })
               .catch((error) => {
                 // An error occurred
@@ -61,8 +63,7 @@ export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
           if (!!password) {
             updatePassword(currentUser, password)
               .then(() => {
-                // Password updated!
-                // ...
+                console.log('password updated')
               })
               .catch((error) => {
                 // An error occurred
@@ -98,10 +99,10 @@ export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
       <Input value={firstName} onChangeText={setFirstName} placeholder="First Name" />
       <Input value={phoneNumber} onChangeText={setPhoneNumber} placeholder="Phone Number" />
       <Input value={email} onChangeText={setEmail} placeholder="Email" />
-      <Input value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry />
+       <Input value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry />
 
 
-      <Button title="Save" onPress={() => handleSaveProfile({ name, firstName, phoneNumber, email })} />
+      <Button title="Save" onPress={() => handleSaveProfile({ name, firstName, phoneNumber, email, password })} />
       <Text>Change mode : </Text>
       {/* <Switch value={isProMode} onValueChange={handleSwitchToProMode} /> */}
     </View>

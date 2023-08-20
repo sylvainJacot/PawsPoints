@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 
 // Firebase
@@ -11,16 +11,14 @@ import { useAuthentication } from '../../../../utils/hooks/useAuthentication';
 // Types
 import { proModeProps } from '../../../../types/pro-mode';
 
-export default function ProfileScreenPro(props: proModeProps) {
+export default function ProfileScreenPro({ proMode, navigation }: { proMode: proModeProps, navigation: any }) {
 
-  // Props
-  const { proMode } = props;
 
    // Const
   const { user } = useAuthentication();
-
+  const initiateActivityName = proMode?.activityName ?? '';
   // States
-  const [activityName, setActivityName] = useState<string>('');
+  const [activityName, setActivityName] = useState<string>(initiateActivityName);
 
   // Function
   
@@ -51,18 +49,31 @@ export default function ProfileScreenPro(props: proModeProps) {
       });
   };
 
-  console.group('%c STATE', 'color: white; background-color: #1B83A4; font-size: 15px');
-  console.log('proMode', proMode);
-  console.groupEnd();
-
   return (
     <View>
         <Input value={activityName} onChangeText={setActivityName} placeholder="Activity name" />
          <Button title="Update pro mode" onPress={() => handleProMode({activityName})} />
 
          {proMode?.enabled &&
-           <Button title="Create a card" onPress={() => handleProMode({activityName})} />
+           <Button 
+          title="Create a card"
+          style={styles.button} 
+          onPress={() => navigation.navigate('CardCreation',  { proMode: proMode })} 
+          />
         }
     </View>
   );
 }
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+    marginTop: 10
+  }
+});

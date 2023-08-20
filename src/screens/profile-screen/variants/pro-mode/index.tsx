@@ -8,8 +8,15 @@ import { get, getDatabase, ref, set } from 'firebase/database';
 // Utils
 import { useAuthentication } from '../../../../utils/hooks/useAuthentication';
 
-export default function ProfileScreenPro() {
+// Types
+import { proModeProps } from '../../../../types/pro-mode';
 
+export default function ProfileScreenPro(props: proModeProps) {
+
+  // Props
+  const { proMode } = props;
+
+   // Const
   const { user } = useAuthentication();
 
   // States
@@ -29,7 +36,7 @@ export default function ProfileScreenPro() {
   
         // Update the user's data with the new proMode data
         userData.proMode = {
-          proMode: true,
+          enabled: true,
           activityName
         };
   
@@ -44,10 +51,18 @@ export default function ProfileScreenPro() {
       });
   };
 
+  console.group('%c STATE', 'color: white; background-color: #1B83A4; font-size: 15px');
+  console.log('proMode', proMode);
+  console.groupEnd();
+
   return (
     <View>
         <Input value={activityName} onChangeText={setActivityName} placeholder="Activity name" />
          <Button title="Update pro mode" onPress={() => handleProMode({activityName})} />
-  </View>
+
+         {proMode?.enabled &&
+           <Button title="Create a card" onPress={() => handleProMode({activityName})} />
+        }
+    </View>
   );
 }

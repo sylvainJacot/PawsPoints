@@ -15,7 +15,6 @@ import { get, getDatabase, ref, set } from 'firebase/database';
 
 // Utils
 import { useAuthentication } from '../../utils/hooks/useAuthentication';
-import { updateUserData } from '../../utils/services/firebase-services';
 import { updateEmail, updatePassword } from 'firebase/auth';
 import { auth } from '../../../config/firebase';
 
@@ -24,9 +23,10 @@ type ProfileScreenNavigationProps = StackScreenProps<StackNavigationParamList, '
 
 export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
 
-    const { isProMode: initialIsProMode, isClientMode } = route.params;
+    // Props
+    const { userData } = route.params;
 
-    const [isProMode, setIsProMode] = useState<boolean>(initialIsProMode);
+    // const [isProMode, setIsProMode] = useState<boolean>(false);
     const [name, setName] = useState<string>('');
     const [firstName, setFirstName] = useState<string>('');
     const [phoneNumber, setPhoneNumber] = useState<string>('');
@@ -90,17 +90,6 @@ export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
       }
     };
     
-          // Set the updated data back to the database
-
-
-  
-  
-    const handleSwitchToProMode = () => {
-      // Implement logic to update user's mode in the database
-      setIsProMode(!isProMode);
-    };
-
-
   return (
     <React.Fragment>
           <View>
@@ -114,10 +103,10 @@ export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
 
       <Button title="Save" onPress={() => handleSaveProfile({ name, firstName, phoneNumber, email })} />
       <Text>Change mode : </Text>
-      <Switch value={isProMode} onValueChange={handleSwitchToProMode} />
+      {/* <Switch value={isProMode} onValueChange={handleSwitchToProMode} /> */}
     </View>
-      {isProMode ? <ProfileScreenPro /> : null}
-      {isClientMode ? <ProfileScreenClient /> : null}
+      <ProfileScreenPro proMode={userData?.proMode}/>
+      <ProfileScreenClient />
     </React.Fragment>
   );
 }

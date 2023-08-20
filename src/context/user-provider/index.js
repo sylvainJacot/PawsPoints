@@ -13,15 +13,18 @@ function UserProvider({ children }) {
 
             const userRef = ref(db, `users/${user.uid}`); // Use ref function to get a reference to the specific path
 
-            onValue(userRef, (snapshot) => {
+            const unsubscribe = onValue(userRef, (snapshot) => {
                 const data = snapshot.val();
                 setUserData(data);
             });
+
+            // Return a cleanup function to unsubscribe when the component unmounts
+            return () => unsubscribe();
         }
     }, [user]);
 
     return (
-        <UserContext.Provider value={{ userData: userData }}>
+        <UserContext.Provider value={{ userData }}>
             {children}
         </UserContext.Provider>
     );

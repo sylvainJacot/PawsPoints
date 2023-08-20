@@ -15,18 +15,16 @@ import { StackNavigationParamList } from '../../components/navigation/type';
 // Utils
 import { useAuthentication } from '../../utils/hooks/useAuthentication';
 
-// Store
-import UserContext from '../../context/user-context'
 
 type HomeScreenProps = StackScreenProps<StackNavigationParamList, 'Home'>;
 
 const auth = getAuth();
 
-export default function HomeScreen({ navigation }: HomeScreenProps) {
+export default function HomeScreen({ navigation, route }: HomeScreenProps) {
 
-  const { userData } = useContext(UserContext);
+  const { userData } = route.params;
 
-  console.group('%c STATE', 'color: white; background-color: #1B83A4; font-size: 15px');
+  console.group('%c HomeScreen', 'color: white; background-color: #1B83A4; font-size: 15px');
   console.log('value', userData);
   console.groupEnd();
 
@@ -52,8 +50,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   return (
     <View style={styles.container}>
       <Text>Welcome {user?.email}!</Text>
-      <Text>Your uuid is {item.name}!</Text> 
-      <Text>type of {userData?.firstName}!</Text>
       <View>
         <UniqueCodeQR 
           uniqueCode={JSON.stringify({
@@ -64,10 +60,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       <Button 
       title="Profile"
        style={styles.button} 
-       onPress={() => navigation.navigate('Profile', {
-                isProMode: true,
-                isClientMode: false, 
-              })} />
+       onPress={() => navigation.navigate('Profile',  {userData: userData })} />
       <Button 
         title="Sign Out" 
         style={styles.button} 

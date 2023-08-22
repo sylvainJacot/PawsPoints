@@ -19,9 +19,8 @@ function UserStack() {
         <Stack.Screen 
           name={'Home'} 
           component={HomeScreen} 
-          initialParams={{ userData: userData as userDataProps }}
           />
-        <Stack.Screen name={'Profile'} component={ProfileScreen} initialParams={{ userData: userData as userDataProps  }}/>
+        <Stack.Screen name={'Profile'} component={ProfileScreen}/>
         <Stack.Screen name={'CardCreation'} component={CardCreation} initialParams={{ proMode: userData?.proMode }}/>
       </Stack.Navigator>
       : null

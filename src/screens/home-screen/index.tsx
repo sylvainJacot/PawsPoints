@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
 
@@ -15,9 +15,7 @@ import { HomeScreenProps } from '../../types/screens/home-screen';
 import { useAuthentication } from '../../utils/hooks/useAuthentication';
 
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }: HomeScreenProps) => {
-
-  const { userData } = route.params;
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }: HomeScreenProps) => {
 
   // States
   const [item, setItem] = useState<string>('');
@@ -55,7 +53,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }: HomeScreen
       <Button 
       title="Profile"
        style={styles.button} 
-       onPress={() => navigation.navigate('Profile', { userData: userData })} />
+       onPress={() => navigation.navigate('Profile')} />
       <Button 
         title="Sign Out" 
         style={styles.button} 

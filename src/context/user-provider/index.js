@@ -7,24 +7,30 @@ function UserProvider({ children }) {
     const { user } = useAuthentication();
     const [userData, setUserData] = useState(null);
 
+    const watchUserData = () => {
+        const db = getDatabase();
+        const userRef = ref(db, `users/${user.uid}`);
+
+        const unsubscribe = onValue(userRef, (snapshot) => {
+            const data = snapshot.val();
+            setUserData(data);
+        });
+        return () => unsubscribe();
+    }
+
     useEffect(() => {
         if (user) {
-            const db = getDatabase(); // Initialize your Firebase database instance
-
-            const userRef = ref(db, `users/${user.uid}`); // Use ref function to get a reference to the specific path
-
-            const unsubscribe = onValue(userRef, (snapshot) => {
-                const data = snapshot.val();
-                setUserData(data);
-            });
-
-            // Return a cleanup function to unsubscribe when the component unmounts
-            return () => unsubscribe();
+            watchUserData()
         }
     }, [user]);
 
+
+
     return (
-        <UserContext.Provider value={{ userData }}>
+        <UserContext.Provider value={{
+            userData: userData,
+            watchUserData: watchUserData
+        }}>
             {children}
         </UserContext.Provider>
     );

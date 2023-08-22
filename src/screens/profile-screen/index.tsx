@@ -1,10 +1,6 @@
-import React, { useState } from 'react';
-
-// Types
-import { ProfileScreenNavigationProps } from '../../types/screens/profile-screen';
+import React, { useState, useEffect, useContext} from 'react';
 
 // Component
-import ProfileScreenClient from './variants/client-mode';
 import { View } from 'react-native';
 import { Button, Switch, Text, Input } from 'react-native-elements';
 
@@ -16,12 +12,14 @@ import { useAuthentication } from '../../utils/hooks/useAuthentication';
 import { updateEmail, updatePassword } from 'firebase/auth';
 import { auth } from '../../../config/firebase';
 import ProfileScreenPro from './variants/pro-mode';
+import UserContext from '../../context/user-context';
 
 
-export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
+export default function ProfileScreen () {
 
-    // Props
-    const { userData } = route.params;
+    // Context
+    const userContext = useContext(UserContext);
+    const { userData, watchUserData } = userContext 
 
     const initialName = userData?.profile?.name ?? ''; 
     const initialFirstName = userData?.profile?.firstName ?? '';
@@ -34,6 +32,7 @@ export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
     const [phoneNumber, setPhoneNumber] = useState<string>(initialPhoneNumber);
     const [email, setEmail] = useState<string>(initialEmail);
     const [password, setPassword] = useState<string>('');
+    const [proModeEnabled, setProModeEnabled] = useState<boolean>(userData?.proMode?.enabled || false);
     
 
     const { user } = useAuthentication();
@@ -90,10 +89,42 @@ export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
           });
       }
     };
+
+  
+    const toggleProMode = () => {
+      // Update the proModeEnabled state as before
+      const userId = user?.uid;
+      const database = getDatabase();
+      const userRef = ref(database, `users/${userId}`);
+  
+      get(userRef)
+        .then((snapshot) => {
+          const userData = snapshot.val() || {};
+  
+          userData.proMode = {
+            enabled: !proModeEnabled
+          };
+  
+          return set(userRef, userData);
+        })
+        .then(() => {
+          setProModeEnabled(!proModeEnabled);
+        })
+        .catch((error) => {
+          console.error('Error updating Pro Mode:', error);
+        });
+    };
+
+
+    useEffect(() => {
+      watchUserData();
+    }, [proModeEnabled]); 
     
   return (
     <React.Fragment>
           <View>
+          <Text>Set pro mode as default</Text>
+          <Switch value={proModeEnabled} onValueChange={toggleProMode} /> 
       <Text>Edite Profil</Text>
       <Input value={name} onChangeText={setName} placeholder="Name" />
       <Input value={firstName} onChangeText={setFirstName} placeholder="First Name" />
@@ -101,13 +132,9 @@ export default function ProfileScreen({ route }: ProfileScreenNavigationProps) {
       <Input value={email} onChangeText={setEmail} placeholder="Email" />
        <Input value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry />
 
-
       <Button title="Save" onPress={() => handleSaveProfile({ name, firstName, phoneNumber, email, password })} />
-      <Text>Change mode : </Text>
-      {/* <Switch value={isProMode} onValueChange={handleSwitchToProMode} /> */}
     </View>
-      <ProfileScreenPro proMode={userData?.proMode}/>
-      <ProfileScreenClient />
+      {proModeEnabled && <ProfileScreenPro proMode={userData?.proMode}/>}
     </React.Fragment>
   );
 }

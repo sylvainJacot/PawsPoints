@@ -6,16 +6,15 @@ import { Button } from 'react-native-elements';
 import {getAuth, signOut} from 'firebase/auth';
 
 // Components
-import UniqueCodeQR from '../../components/qrcode';
 
 // Type
-import { HomeScreenProps } from '../../types/screens/home-screen';
 
 // Utils
-import { useAuthentication } from '../../utils/hooks/useAuthentication';
+import UniqueCodeQR from '../../../components/qrcode';
+import { useAuthentication } from '../../../utils/hooks/useAuthentication';
 
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }: HomeScreenProps) => {
+function HomeClientScreen () {
 
   // States
   const [item, setItem] = useState<string>('');
@@ -46,14 +45,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }: HomeScreenProps) 
 
   return (
     <View style={styles.container}>
-      <Text>Welcome {user?.email}!</Text>
       <View>
         <UniqueCodeQR  uniqueCode={JSON.stringify({ name: item})}/>
       </View>
-      <Button 
-      title="Profile"
-       style={styles.button} 
-       onPress={() => navigation.navigate('Profile')} />
       <Button 
         title="Sign Out" 
         style={styles.button} 
@@ -63,7 +57,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }: HomeScreenProps) 
   );
 }
 
-export default HomeScreen;
+export default HomeClientScreen;
 
 const styles = StyleSheet.create({
   container: {

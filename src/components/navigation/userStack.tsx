@@ -1,29 +1,16 @@
 import React, { useContext } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 
 // Sreens
-import HomeScreen from '../../screens/home-screen';
-import ProfileScreen from '../../screens/profile-screen';
 import UserContext from '../../context/user-context';
-import CardCreation from '../../screens/card-creation-screen';
-import { userDataProps } from '../../types/user-data';
+import ProTabs from './user-tabs/pro-tabs';
+import ClientTabs from './user-tabs/client-tabs';
 
 function UserStack() {
 
-  const Stack = createStackNavigator();
   const { userData } = useContext(UserContext);
 
   return (
-    userData ? 
-      <Stack.Navigator>
-        <Stack.Screen 
-          name={'Home'} 
-          component={HomeScreen} 
-          />
-        <Stack.Screen name={'Profile'} component={ProfileScreen}/>
-        <Stack.Screen name={'CardCreation'} component={CardCreation} initialParams={{ proMode: userData?.proMode }}/>
-      </Stack.Navigator>
-      : null
+    userData?.proMode?.enabled ? <ProTabs /> : <ClientTabs />
   );
 }
 

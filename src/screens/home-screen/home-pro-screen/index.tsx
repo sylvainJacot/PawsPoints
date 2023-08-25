@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, Text, View, Linking, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-elements';
-import QRCodeScanner from 'react-native-qrcode-scanner';
-import { RNCamera } from 'react-native-camera';
+import { BarCodeScanner } from 'expo-barcode-scanner'
 
 // Firebase
 import {getAuth, signOut} from 'firebase/auth';
 
 // Components
+
 
 // Type
 
@@ -19,6 +19,8 @@ import { useAuthentication } from '../../../utils/hooks/useAuthentication';
 function HomeProScreen () {
 
   // States
+  const [hasPermission, setHasPermission] = useState(null);
+  const [scanned, setScanned] = useState<boolean>(false);
   const [item, setItem] = useState<string>('');
   const { user } = useAuthentication();
 
@@ -27,6 +29,29 @@ function HomeProScreen () {
       console.error('An error occured', err)
     );
   };
+
+
+
+  useEffect(() => {
+    const getBarCodeScannerPermissions = async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+    };
+
+    getBarCodeScannerPermissions();
+  }, []);
+
+  const handleBarCodeScanned = ({ type, data }) => {
+    setScanned(true);
+    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+  };
+
+  if (hasPermission === null) {
+    return <Text>Requesting for camera permission</Text>;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
 
   // Functions
   /*
@@ -41,35 +66,24 @@ function HomeProScreen () {
         console.error('Error signing out:', error);
       }
   }
-  useEffect(() => {
-    if(user) {
-      setItem( user.uid )
-    }
-    () => {
-      setItem('');
-    }
-  }, [user])
+  // useEffect(() => {
+  //   if(user) {
+  //     setItem( user.uid )
+  //   }
+  //   () => {
+  //     setItem('');
+  //   }
+  // }, [user])
   
 
   return (
     <View style={styles.container}>
-      <View>
-      {/* <QRCodeScanner
-        onRead={onSuccess}
-        flashMode={RNCamera.Constants.FlashMode.torch}
-        topContent={
-          <Text style={styles.centerText}>
-            Go to{' '}
-            <Text style={styles.textBold}>wikipedia.org/wiki/QR_code</Text> on
-            your computer and scan the QR code.
-          </Text>
-        }
-        bottomContent={
-          <TouchableOpacity style={styles.buttonTouchable}>
-            <Text style={styles.buttonText}>OK. Got it!</Text>
-          </TouchableOpacity>
-        }
-      /> */}
+      <View style={styles.barCodeScannerContainer}>
+      <BarCodeScanner
+        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        style={StyleSheet.absoluteFillObject}
+      />
+      {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
           
         {/* <UniqueCodeQR  uniqueCode={JSON.stringify({ name: item})}/> */}
       </View>
@@ -110,5 +124,15 @@ const styles = StyleSheet.create({
   },
   buttonTouchable: {
     padding: 16
+  },
+  barCodeScannerContainer: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgb(0,122,255)'
+  },
+  absoluteFillObject: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%'
   }
 });

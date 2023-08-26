@@ -46,7 +46,8 @@ function HomeClientScreen () {
   return (
     <View style={styles.container}>
       <View>
-        <UniqueCodeQR  uniqueCode={JSON.stringify({ClientUid: item})}/>
+          <Text>{item}</Text>
+        <UniqueCodeQR  uniqueCode={JSON.stringify(item)}/>
       </View>
       <Button 
         title="Sign Out" 

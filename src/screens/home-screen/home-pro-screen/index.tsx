@@ -1,42 +1,82 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, Text, View, Linking, TouchableOpacity, Modal } from 'react-native';
-import { Button } from 'react-native-elements';
-import { BarCodeScanner } from 'expo-barcode-scanner'
-
+import { BarCodeScanner } from 'expo-barcode-scanner';
 // Firebase
-import {getAuth, signOut} from 'firebase/auth';
-
+import { getAuth, signOut } from 'firebase/auth';
+import React, { useContext, useEffect, useState } from 'react';
+import { Linking, Modal, StyleSheet, Text, View } from 'react-native';
+import { Button } from 'react-native-elements';
 // Components
-
-
-// Type
-
-// Utils
-// import UniqueCodeQR from '../../../components/qrcode';
+import UserContext from '../../../context/user-context';
 import { useAuthentication } from '../../../utils/hooks/useAuthentication';
-import { get, getDatabase, ref } from 'firebase/database';
+import { addClientToCard, fetchClientData } from '../../../utils/services/firebase-services';
+
+
 
 
 function HomeProScreen () {
 
   // States
-  const [hasPermission, setHasPermission] = useState(null);
+  const [hasPermission, setHasPermission] = useState(false);
   const [scanned, setScanned] = useState<boolean>(false);
-  const [item, setItem] = useState<string>('');
 
-  const [clientData, setClientData] = useState<Object>({}); // To store client data
+  const [clientUniqueId, setClientUniqueId] = useState<String>('');
+  const [clientData, setClientData] = useState<Object>({});
+  const [loyaltyCardId, setLoyaltyCardId] = useState<Object>(''); 
   const [showModal, setShowModal] = useState<Boolean>(false);
 
+  // Const
+  const { userData } = useContext(UserContext);
   const { user } = useAuthentication();
 
+  // Functions
   function onSuccess (e) {
     Linking.openURL(e.data).catch(err =>
       console.error('An error occured', err)
     );
   };
 
+  /*
+  * Fetch CLient data
+  */
+
+   
+  /*
+  * Handle bar scan
+  */
+  const handleBarCodeScanned = ({type, data}) => {
+    setScanned(true);
+    console.log(`Scanned QR code with type ${type} and data ${data}`);
+    if(data) {
+      fetchClientData(data, setClientData)
+      setClientUniqueId(data.replace(/"/g, ''));
+      setShowModal(true)
+    }
+  };
+
+    /*
+  * SignOUt
+  */
+    async function handleSignOut () {
+      const auth = getAuth();
+  
+        try {
+          await signOut(auth);
+        } catch (error) {
+          console.error('Error signing out:', error);
+        }
+    }
+  
+    // Function to handle adding the client
+    const handleAddClient = () => {
+      const { profile } = clientData;
+      const { name, firstName} = profile;
+       addClientToCard( clientUniqueId, name, firstName, user?.uid, loyaltyCardId)
+  
+      // Close the modal
+      setShowModal(false);
+    };
 
 
+  // Life Cycle
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -46,28 +86,11 @@ function HomeProScreen () {
     getBarCodeScannerPermissions();
   }, []);
 
-  const fetchClientData = async (uid) => {
-    // Update the proModeEnabled state as before
-    const database = getDatabase();
-    const userRef = ref(database, `users/${uid}`);
-   
-    get(userRef)
-      .then((snapshot) => {
-        const userData = snapshot.val() || {};
-         console.log('userData', userData);
-        setClientData(userData);
-      })
-      .catch((error) => {
-        console.error('Error updating Pro Mode:', error);
-      });
-   
-   };
-
-  const handleBarCodeScanned = ({type, data}) => {
-    setScanned(true);
-    console.log(`Scanned QR code with type ${type} and data ${data}`);
-    fetchClientData(data)
-  };
+  useEffect(() => {
+    if(userData?.proMode?.loyaltyCard) {
+      setLoyaltyCardId(userData?.proMode?.loyaltyCard?.id);
+    }
+  }, [userData])
 
   if (hasPermission === null) {
     return <Text>Requesting for camera permission</Text>;
@@ -75,40 +98,21 @@ function HomeProScreen () {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
-
-  // Functions
-  /*
-  * SignOUt
-  */
-  async function handleSignOut () {
-    const auth = getAuth();
-
-      try {
-        await signOut(auth);
-      } catch (error) {
-        console.error('Error signing out:', error);
-      }
-  }
-
-    // Function to handle adding the client
-    const handleAddClient = () => {
-      // Add the client to the card or perform any other necessary actions
-      // You can implement this logic here
-  
-      // Close the modal
-      setShowModal(false);
-    };
   
 
-    console.log('clientData state', clientData)
+  console.group('%c STATE', 'color: white; background-color: #1B83A4; font-size: 15px');
+  console.log('clientData from component:', clientData);
+  console.groupEnd();
 
   return (
     <View style={styles.container}>
       <View style={styles.barCodeScannerContainer}>
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        style={StyleSheet.absoluteFillObject}
-      />
+        {!showModal &&
+              <BarCodeScanner
+              onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+              style={StyleSheet.absoluteFillObject}
+            />
+          }
       {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
 
       {/* Display client data and confirmation modal */}
@@ -118,12 +122,14 @@ function HomeProScreen () {
           transparent={true}
           visible={showModal}
         >
-          <View style={styles.modalContainer}>
-            <Text>Client Name: {clientData?.name}</Text>
-            <Text>Client Email: {clientData?.email}</Text>
+          <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text>Client Name: {clientData?.profile?.name}</Text>
+            <Text>Client Email: {clientData?.profile?.email}</Text>
             {/* Add more client data fields as needed */}
-            <Button title="Add Client" onPress={handleAddClient} />
+            <Button title={`Add Client on loyaltyCardId ${loyaltyCardId}?`} onPress={handleAddClient} />
             <Button title="Cancel" onPress={() => setShowModal(false)} />
+            </View>
           </View>
         </Modal>
       )}
@@ -180,5 +186,26 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: '100%',
     height: '60%'
-  }
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
 });

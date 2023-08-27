@@ -9,7 +9,7 @@ function UserProvider({ children }) {
 
     const watchUserData = () => {
         const db = getDatabase();
-        const userRef = ref(db, `users/${user.uid}`);
+        const userRef = ref(db, `users/${user?.uid}`);
 
         const unsubscribe = onValue(userRef, (snapshot) => {
             const data = snapshot.val();

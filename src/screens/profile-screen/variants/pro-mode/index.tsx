@@ -35,7 +35,7 @@ export default function ProfileScreenPro({ proMode, navigation }: { proMode: pro
         // Update the user's data with the new proMode data
         userData.proMode = {
           enabled: true,
-          activityName
+          loyaltyCard: {}
         };
   
         // Set the updated data back to the database

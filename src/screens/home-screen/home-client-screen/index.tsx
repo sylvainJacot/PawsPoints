@@ -17,6 +17,7 @@ import { useAuthentication } from '../../../utils/hooks/useAuthentication';
 function HomeClientScreen () {
 
   // States
+  const [userQrCodeData, setUserQrCodeData] = useState<Object>({});
   const [item, setItem] = useState<string>('');
   const { user } = useAuthentication();
 

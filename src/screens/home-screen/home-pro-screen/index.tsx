@@ -27,31 +27,28 @@ function HomeProScreen () {
   const [clientData, setClientData] = useState<Object>({}); // To store client data
   const [showModal, setShowModal] = useState<Boolean>(false);
 
+  // Const
   const { user } = useAuthentication();
 
+  // Functions
   function onSuccess (e) {
     Linking.openURL(e.data).catch(err =>
       console.error('An error occured', err)
     );
   };
 
-
-
-  useEffect(() => {
-    const getBarCodeScannerPermissions = async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
-    };
-
-    getBarCodeScannerPermissions();
-  }, []);
-
+  /*
+  * Fetch CLient data
+  */
   const fetchClientData = async (uid) => {
     // Update the proModeEnabled state as before
     const database = getDatabase();
-    const userRef = ref(database, `users/${uid}`);
+    const cleanUid = uid.replace(/"/g, '');
+    const userRef = ref(database, `users/${cleanUid}`);
+    console.log('uid', uid);
+    console.log("'users/' + uid", `users/${cleanUid}`);
    
-    get(userRef)
+   await get(userRef)
       .then((snapshot) => {
         const userData = snapshot.val() || {};
          console.log('userData', userData);
@@ -62,34 +59,31 @@ function HomeProScreen () {
       });
    
    };
-
+   
+  /*
+  * Handle bar scan
+  */
   const handleBarCodeScanned = ({type, data}) => {
     setScanned(true);
     console.log(`Scanned QR code with type ${type} and data ${data}`);
-    fetchClientData(data)
+    if(data) {
+      fetchClientData(data)
+    }
   };
 
-  if (hasPermission === null) {
-    return <Text>Requesting for camera permission</Text>;
-  }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
-
-  // Functions
-  /*
+    /*
   * SignOUt
   */
-  async function handleSignOut () {
-    const auth = getAuth();
-
-      try {
-        await signOut(auth);
-      } catch (error) {
-        console.error('Error signing out:', error);
-      }
-  }
-
+    async function handleSignOut () {
+      const auth = getAuth();
+  
+        try {
+          await signOut(auth);
+        } catch (error) {
+          console.error('Error signing out:', error);
+        }
+    }
+  
     // Function to handle adding the client
     const handleAddClient = () => {
       // Add the client to the card or perform any other necessary actions
@@ -98,6 +92,24 @@ function HomeProScreen () {
       // Close the modal
       setShowModal(false);
     };
+
+
+  // Life Cycle
+  useEffect(() => {
+    const getBarCodeScannerPermissions = async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+    };
+
+    getBarCodeScannerPermissions();
+  }, []);
+
+  if (hasPermission === null) {
+    return <Text>Requesting for camera permission</Text>;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
   
 
     console.log('clientData state', clientData)

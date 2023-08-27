@@ -1,17 +1,15 @@
-import React, { useState, useEffect, useContext } from 'react';
+// Firebase
+import { getAuth, signOut } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
-
-// Firebase
-import {getAuth, signOut} from 'firebase/auth';
-
 // Components
-
 // Type
-
 // Utils
 import UniqueCodeQR from '../../../components/qrcode';
 import { useAuthentication } from '../../../utils/hooks/useAuthentication';
+
+
 
 
 function HomeClientScreen () {

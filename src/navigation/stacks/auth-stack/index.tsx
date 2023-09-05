@@ -2,11 +2,11 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 // Screens 
-import WelcomeScreen from '../../screens/welcome-screen';
-import SignUpScreen from '../../screens/signup-screen';
+import WelcomeScreen from '../../../screens/welcome-screen';
+import SignUpScreen from '../../../screens/signup-screen';
 
 // Types
-import { StackNavigationParamList } from './type';
+import { StackNavigationParamList } from '../../type';
 
 const Stack = createStackNavigator<StackNavigationParamList>();
 

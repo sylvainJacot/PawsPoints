@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState} from 'react';
 import { Text } from 'react-native';
 import { Button, Image, Input } from 'react-native-elements';
-import { useAuthentication } from '../../utils/hooks/useAuthentication';
-import { updateCard } from '../../utils/services/firebase-services';
+import { useAuthentication } from '../../../utils/hooks/useAuthentication';
+import { updateCard } from '../../../utils/services/firebase-services';
 // import * as ImagePicker from 'expo-image-picker';
-import UserContext from '../../context/user-context';
+import UserContext from '../../../context/user-context';
 
 
 export default function CardCreation() {

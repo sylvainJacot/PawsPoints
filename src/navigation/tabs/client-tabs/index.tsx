@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 // Screens
-import ProfileScreen from '../../../../screens/profile-screen';
-import CardCreation from '../../../../screens/card-creation-screen';
-import HomeClientScreen from '../../../../screens/home-screen/home-client-screen';
+import ProfileScreen from '../../../screens/profile-screen';
+import CardCreation from '../../../screens/card-pro-screen/card-creation-screen';
+import HomeClientScreen from '../../../screens/home-screen/home-client-screen';
 
 
 function ClientTabs() {

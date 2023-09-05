@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "--legacy-peer-deps": "0.0.1-security.6",
-    "@expo/webpack-config": "^18.1.2",
+    "@expo/webpack-config": "^19.0.0",
     "@react-native-google-signin/google-signin": "^10.0.1",
     "@react-navigation/bottom-tabs": "^6.5.8",
     "@react-navigation/native": "^6.1.7",

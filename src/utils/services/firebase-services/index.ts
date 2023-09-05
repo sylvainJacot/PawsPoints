@@ -78,8 +78,8 @@ export const addClientToCard = async (clientUniqueId, name, firstName, proUid, c
       // If the client doesn't exist, add them to the loyalty card
       const newPostKey = clientUniqueId;
       const clientCardData = {
-          name,
-          firstName,
+          name: name || "no name provided",
+          firstName: firstName || "no firstName provided",
       };
 
       const updates = {};
@@ -101,6 +101,51 @@ export const addClientToCard = async (clientUniqueId, name, firstName, proUid, c
       console.error('Error adding client to loyalty card:', error);
   }
 }
+
+export const checkClientLinking = async (clientUniqueId) => {
+  const database = getDatabase();
+  const usersRef = ref(database, 'users');
+
+  try {
+    const snapshot = await get(child(usersRef, clientUniqueId));
+    const userData = snapshot.val();
+
+    // Check if the user data contains loyalty card information
+    if (userData && userData.proMode && userData.proMode.loyaltyCard) {
+      // If linked, return the loyalty card ID
+      return userData.proMode.loyaltyCard.id;
+    } else {
+      // If not linked, return null
+      return null;
+    }
+  } catch (error) {
+    console.error('Error checking client linking:', error);
+    return null;
+  }
+};
+
+// Define a function to fetch loyalty card data
+export const fetchLoyaltyCardData = async (loyaltyCardId) => {
+  const database = getDatabase();
+  const loyaltyCardsRef = ref(database, 'loyaltyCards');
+
+  try {
+    const snapshot = await get(child(loyaltyCardsRef, loyaltyCardId));
+    const loyaltyCardData = snapshot.val();
+
+    // Check if the loyalty card data exists
+    if (loyaltyCardData) {
+      return loyaltyCardData;
+    } else {
+      // If the loyalty card data doesn't exist, you can handle this case accordingly
+      console.log('Loyalty card data not found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching loyalty card data:', error);
+    return null;
+  }
+};
 
 
 export const fectchLoyaltyCardId = async (uid, setLoyaltyCardId) => {

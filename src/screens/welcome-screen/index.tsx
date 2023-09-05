@@ -10,7 +10,7 @@ import { Input, Button } from 'react-native-elements';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 // Types
-import { StackNavigationParamList } from '../../components/navigation/type';
+import { StackNavigationParamList } from '../../navigation/type';
 import { auth } from '../../../config/firebase';
 
 // Utils

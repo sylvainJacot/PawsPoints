@@ -7,7 +7,7 @@ import { Button } from 'react-native-elements';
 // Components
 import UserContext from '../../../context/user-context';
 import { useAuthentication } from '../../../utils/hooks/useAuthentication';
-import { addClientToCard, fetchClientData } from '../../../utils/services/firebase-services';
+import { addClientToCard, checkClientLinking, fetchClientData, fetchLoyaltyCardData } from '../../../utils/services/firebase-services';
 
 
 
@@ -22,6 +22,7 @@ function HomeProScreen () {
   const [clientData, setClientData] = useState<Object>({});
   const [loyaltyCardId, setLoyaltyCardId] = useState<Object>(''); 
   const [showModal, setShowModal] = useState<Boolean>(false);
+  const [isLinked, setIsLinked] = useState<Boolean>(false);
 
   // Const
   const { userData } = useContext(UserContext);
@@ -42,13 +43,37 @@ function HomeProScreen () {
   /*
   * Handle bar scan
   */
-  const handleBarCodeScanned = ({type, data}) => {
+  const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
     console.log(`Scanned QR code with type ${type} and data ${data}`);
-    if(data) {
-      fetchClientData(data, setClientData)
-      setClientUniqueId(data.replace(/"/g, ''));
-      setShowModal(true)
+  
+    if (data) {
+      // Check if the client is already linked to a loyalty card
+      const loyaltyCardId = await checkClientLinking(data);
+
+      console.group('%c STATE', 'color: white; background-color: #1B83A4; font-size: 15px');
+      console.log('data', data);
+      console.groupEnd();
+  
+      if (loyaltyCardId) {
+        // Fetch loyalty card data using loyaltyCardId
+        const loyaltyCardData = await fetchLoyaltyCardData(loyaltyCardId);
+
+        console.group('%c STATE', 'color: white; background-color: #1B83A4; font-size: 15px');
+        console.log('loyaltyCardId', loyaltyCardId);
+        console.log('loyaltyCardData', loyaltyCardData);
+        console.groupEnd();
+  
+        // Display the loyalty card data to the user
+        setLoyaltyCardId(loyaltyCardId);
+        setClientUniqueId(data.replace(/"/g, ''));
+        setClientData(loyaltyCardData);
+        setIsLinked(true);
+      } else {
+        // If not linked, show the modal to add the client to the loyalty card
+        setClientUniqueId(data.replace(/"/g, ''));
+        setShowModal(true);
+      }
     }
   };
 
@@ -68,7 +93,10 @@ function HomeProScreen () {
     // Function to handle adding the client
     const handleAddClient = () => {
       const { profile } = clientData;
-      const { name, firstName} = profile;
+
+      const name = profile?.name ? profile?.name : 'no name provided'
+      const firstName = profile?.firstName ? profile?.firstName  : 'no firstName provided';
+
        addClientToCard( clientUniqueId, name, firstName, user?.uid, loyaltyCardId)
   
       // Close the modal
@@ -107,6 +135,7 @@ function HomeProScreen () {
   return (
     <View style={styles.container}>
       <View style={styles.barCodeScannerContainer}>
+        {isLinked && <Text>IS LINKED !!!!</Text>}
         {!showModal &&
               <BarCodeScanner
               onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}

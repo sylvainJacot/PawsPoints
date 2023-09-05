@@ -1,14 +1,14 @@
 import React from 'react';
 
 // Navigation
-import UserStack from './userStack';
-import AuthStack from './authStack';
+import UserStack from './stacks/user-stack';
+import AuthStack from './stacks/auth-stack';
 
 // Store
-import UserProvider from '../../context/user-provider';
+import UserProvider from '../context/user-provider';
 
 // Hooks
-import { useAuthentication } from '../../utils/hooks/useAuthentication';
+import { useAuthentication } from '../utils/hooks/useAuthentication';
 
 export default function RootNavigation() {
 

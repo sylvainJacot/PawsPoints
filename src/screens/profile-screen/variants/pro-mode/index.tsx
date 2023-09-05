@@ -56,7 +56,7 @@ export default function ProfileScreenPro({ proMode, navigation }: { proMode: pro
 
          {proMode?.enabled &&
            <Button 
-          title="Create a card"
+          title="Edit card"
           style={styles.button} 
           onPress={() => navigation.navigate('CardCreation',  { proMode: proMode })} 
           />

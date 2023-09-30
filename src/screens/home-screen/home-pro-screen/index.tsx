@@ -1,13 +1,16 @@
+// Context
+import UserContext from 'context/user-context';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 // Firebase
 import { getAuth, signOut } from 'firebase/auth';
 import React, { useContext, useEffect, useState } from 'react';
 import { Linking, Modal, StyleSheet, Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
-// Components
-import UserContext from '../../../context/user-context';
-import { useAuthentication } from '../../../utils/hooks/useAuthentication';
-import { addClientToCard, checkClientLinking, fetchClientData, fetchLoyaltyCardData } from '../../../utils/services/firebase-services';
+// Utils
+import { useAuthentication } from 'utils/hooks/useAuthentication';
+import { addClientToCard, checkClientLinking, fetchClientData, fetchLoyaltyCardData } from 'utils/services/firebase-services';
+
+
 
 
 
@@ -15,7 +18,7 @@ import { addClientToCard, checkClientLinking, fetchClientData, fetchLoyaltyCardD
 function HomeProScreen () {
 
   // States
-  const [hasPermission, setHasPermission] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState<boolean>(false);
 
   const [clientUniqueId, setClientUniqueId] = useState<String>('');
@@ -47,32 +50,36 @@ function HomeProScreen () {
     setScanned(true);
     console.log(`Scanned QR code with type ${type} and data ${data}`);
   
+    // Je reçois les données au scan
     if (data) {
-      // Check if the client is already linked to a loyalty card
-      const loyaltyCardId = await checkClientLinking(data);
 
-      console.group('%c STATE', 'color: white; background-color: #1B83A4; font-size: 15px');
-      console.log('data', data);
-      console.groupEnd();
-  
+      const getClientUniqueId = data.replace(/"/g, '');
+
+      // Check if the client is already linked to a loyalty card
+      const loyaltyCardId = await checkClientLinking(getClientUniqueId);
+
       if (loyaltyCardId) {
         // Fetch loyalty card data using loyaltyCardId
         const loyaltyCardData = await fetchLoyaltyCardData(loyaltyCardId);
+        
+        if(loyaltyCardData) {
 
-        console.group('%c STATE', 'color: white; background-color: #1B83A4; font-size: 15px');
-        console.log('loyaltyCardId', loyaltyCardId);
-        console.log('loyaltyCardData', loyaltyCardData);
-        console.groupEnd();
-  
-        // Display the loyalty card data to the user
-        setLoyaltyCardId(loyaltyCardId);
-        setClientUniqueId(data.replace(/"/g, ''));
-        setClientData(loyaltyCardData);
-        setIsLinked(true);
+          // Display the loyalty card data to the user
+          setLoyaltyCardId(loyaltyCardId);
+          setClientUniqueId(getClientUniqueId);
+          setIsLinked(true);
+        }
       } else {
         // If not linked, show the modal to add the client to the loyalty card
-        setClientUniqueId(data.replace(/"/g, ''));
+        setClientUniqueId(getClientUniqueId);
         setShowModal(true);
+
+          const clientData = await fetchClientData(getClientUniqueId);
+          if (clientData) {
+            setClientData(clientData);
+      
+          }
+        
       }
     }
   };
@@ -91,17 +98,21 @@ function HomeProScreen () {
     }
   
     // Function to handle adding the client
-    const handleAddClient = () => {
+  // Function to handle adding the client
+  const handleAddClient = async () => {
+    if (clientUniqueId && loyaltyCardId) {
       const { profile } = clientData;
 
-      const name = profile?.name ? profile?.name : 'no name provided'
-      const firstName = profile?.firstName ? profile?.firstName  : 'no firstName provided';
+      const name = profile?.name || 'no name provided';
+      const firstName = profile?.firstName || 'no firstName provided';
 
-       addClientToCard( clientUniqueId, name, firstName, user?.uid, loyaltyCardId)
-  
+      // Assuming addClientToCard is an async function, await it.
+      await addClientToCard(clientUniqueId, name, firstName, user?.uid, loyaltyCardId);
+
       // Close the modal
       setShowModal(false);
-    };
+    }
+  };
 
 
   // Life Cycle
@@ -127,10 +138,6 @@ function HomeProScreen () {
     return <Text>No access to camera</Text>;
   }
   
-
-  console.group('%c STATE', 'color: white; background-color: #1B83A4; font-size: 15px');
-  console.log('clientData from component:', clientData);
-  console.groupEnd();
 
   return (
     <View style={styles.container}>

@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState} from 'react';
-import { Text } from 'react-native';
-import { Button, Image, Input } from 'react-native-elements';
-import { useAuthentication } from '../../../utils/hooks/useAuthentication';
-import { updateCard } from '../../../utils/services/firebase-services';
 // import * as ImagePicker from 'expo-image-picker';
-import UserContext from '../../../context/user-context';
+import UserContext from 'context/user-context';
+import React, { useContext, useEffect, useState } from 'react';
+import { SafeAreaView, TextInput } from 'react-native';
+import { Button, Input } from 'react-native-elements';
+import { useAuthentication } from 'utils/hooks/useAuthentication';
+import { updateCard } from 'utils/services/firebase-services';
 
 
 export default function CardCreation() {
@@ -41,6 +41,22 @@ export default function CardCreation() {
   //   }
   // };
 
+
+  const handleTextChange = (text) => {
+    // Use a regular expression to remove non-numeric characters
+    const numericValue = text.replace(/[^0-9]/g, '');
+    // Convert the numeric value to a number
+    const numericInput = parseFloat(numericValue);
+
+    // Check if the numeric input is within the desired range (1 to 10)
+    if (!isNaN(numericInput) && numericInput >= 1 && numericInput <= 10) {
+      setSlotsCount(numericInput); // Set the valid value
+    } else {
+      setSlotsCount(0); // Clear the input if it's not within the range
+    }
+  };
+  
+
   useEffect(() => {
     const date = Date.now();
     const userID = user?.uid;
@@ -53,17 +69,17 @@ export default function CardCreation() {
 
 
   return (
-    <React.Fragment>
+    <SafeAreaView>
       <Input 
           value={activityName} 
           onChangeText={setactivityName} 
           placeholder="Name of card" 
        />
-       <Input 
-          keyboardType="numeric"
+       <TextInput 
+           keyboardType="numeric"
           value={slotsCount} 
-          onChangeText={setSlotsCount} 
-          placeholder="Number of slots" 
+          onChangeText={(v) => handleTextChange(v)} 
+          maxLength={10}
        />
         {/* <Button title="Pick an image from camera roll" onPress={pickImage} />
         {cardLogo && <Image source={{ uri: cardLogo }} style={{ width: 200, height: 200 }} />} */}
@@ -73,6 +89,6 @@ export default function CardCreation() {
           placeholder="Color" 
        />
         <Button title="Save" onPress={() => handleUpdateCard()} />
-    </React.Fragment>
+    </SafeAreaView>
   );
 }

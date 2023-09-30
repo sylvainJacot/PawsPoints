@@ -1,4 +1,4 @@
-import { child, get, getDatabase, push, ref, set, update } from 'firebase/database';
+import { child, get, getDatabase, ref, set, update } from 'firebase/database';
 
 const database = getDatabase();
 
@@ -33,7 +33,7 @@ export const getUserData = (userId: string) => {
     }
 }
 
-export const fetchClientData = async (uid, setClientData) => {
+export const fetchClientData = async (uid) => {
   try {
     const cleanUid = uid.replace(/"/g, '');
     const userRef = ref(database, `users/${cleanUid}`);
@@ -42,14 +42,14 @@ export const fetchClientData = async (uid, setClientData) => {
 
     if (snapshot.exists()) {
       const userData = snapshot.val();
-      setClientData(userData);
+
+      return userData; // Return the userData
     } else {
-      // Handle the case where the client does not exist
-      console.log('Client does not exist');
-      setClientData(null); // Set client data to null or handle as needed
+      return null;
     }
   } catch (error) {
     console.error('Error fetching client data:', error);
+    return null; // Return null in case of an error
   }
 };
 
@@ -78,6 +78,9 @@ export const addClientToCard = async (clientUniqueId, name, firstName, proUid, c
       // If the client doesn't exist, add them to the loyalty card
       const newPostKey = clientUniqueId;
       const clientCardData = {
+          carName: loyaltyCardData?.name,
+          total_slots: loyaltyCardData?.slotsCount,
+          available_slots: loyaltyCardData?.slotsCount,
           name: name || "no name provided",
           firstName: firstName || "no firstName provided",
       };
@@ -111,9 +114,10 @@ export const checkClientLinking = async (clientUniqueId) => {
     const userData = snapshot.val();
 
     // Check if the user data contains loyalty card information
-    if (userData && userData.proMode && userData.proMode.loyaltyCard) {
+    if (userData && userData.profile?.activeLoyaltyCards) {
       // If linked, return the loyalty card ID
-      return userData.proMode.loyaltyCard.id;
+
+      return userData.profile.activeLoyaltyCards.id;
     } else {
       // If not linked, return null
       return null;
@@ -125,6 +129,7 @@ export const checkClientLinking = async (clientUniqueId) => {
 };
 
 // Define a function to fetch loyalty card data
+// We should fetch the loyalty card linked to the client
 export const fetchLoyaltyCardData = async (loyaltyCardId) => {
   const database = getDatabase();
   const loyaltyCardsRef = ref(database, 'loyaltyCards');
